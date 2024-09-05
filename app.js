@@ -4,6 +4,7 @@ const app = express()
 const cors = require('cors')
 const userRouter = require('./router/user')
 const userInfoRouter = require('./router/userinfo')
+const artcateRouter = require('./router/artcate')
 const joi = require('joi')
 const expressJWT = require('express-jwt')
 const config = require('./config')
@@ -21,8 +22,15 @@ app.use((req,res,next) => {
     next()
 })
 app.use(expressJWT({secret:config.jwtSecretKey}).unless({path:[/^\/api\//]}))
+// 导入并使用文章路由模块
+// 托管静态资源文件
+app.use('/uploads', express.static('./uploads'))
+const articleRouter = require('./router/article')
+// 为文章的路由挂载统一的访问前缀 /my/article
+app.use('/my/article', articleRouter)
 app.use('/api',userRouter)
 app.use('/my',userInfoRouter)
+app.use('/my/article',artcateRouter)
 
 app.use((err,req,res,next) => {
     // 数据验证失败
